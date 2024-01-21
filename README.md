@@ -1,0 +1,1 @@
+Automatic Femoral Cartilage Segmentation Methods Based on Both Atlas and Deep Learning Approaches with UNet
