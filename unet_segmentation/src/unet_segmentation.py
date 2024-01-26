@@ -73,7 +73,7 @@ PIN_MEMORY = True
 
 if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = load_model(r"D:\U-Net\U-Net cartilagini_NUOVO_ALLENAMENTO_NON_LESIONATI_SENZA_DCA0\my_checkpoint.pth.tar", device)
+    model = load_model(r"\my_checkpoint.pth.tar", device)
     
     transform = A.Compose([
         A.Resize(height=512, width=512),
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     ])
 
     new_data_loader = DataLoader(
-        NewDataDataset(r"D:\U-Net\U-Net cartilagini_NUOVO_ALLENAMENTO_NON_LESIONATI_SENZA_DCA0\to_segment", r"D:\U-Net\U-Net cartilagini_NUOVO_ALLENAMENTO_NON_LESIONATI_SENZA_DCA0\ground_truth", transform=transform),
+        NewDataDataset(r"\to_segment", r"\ground_truth", transform=transform),
         batch_size=BATCH_SIZE, 
         shuffle=False, 
         num_workers=NUM_WORKERS, 
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     for image, img_path in new_data_loader:
         print(f"Elaborazione del batch: {image.shape}") 
 
-    output_folder = r"D:\U-Net\U-Net cartilagini_NUOVO_ALLENAMENTO_NON_LESIONATI_SENZA_DCA0\prediction"
+    output_folder = r"\prediction"
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
