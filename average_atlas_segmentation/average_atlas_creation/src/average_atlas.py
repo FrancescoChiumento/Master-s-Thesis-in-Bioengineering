@@ -1,3 +1,5 @@
+# Francesco Chiumento, 2023
+
 import os
 import subprocess
 import SimpleITK as sitk

@@ -1,3 +1,5 @@
+#Francesco Chiumento, 2023
+
 print("Step 1: Begin Configuration File Generation")
 print()
 import sys

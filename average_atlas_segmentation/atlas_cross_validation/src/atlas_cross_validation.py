@@ -1,3 +1,5 @@
+# Francesco Chiumento, 2023
+
 import os
 import shutil
 import itertools
