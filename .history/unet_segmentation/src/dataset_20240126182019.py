@@ -17,6 +17,7 @@ class CarvanaDataset(Dataset):
         img_path = os.path.join(self.image_dir, self.images[index])
         mask_path = os.path.join(self.mask_dir, self.images[index].replace(".jpg","_mask.gif"))
         image = np.array(Image.open(img_path).convert("RGB"))
+        
         mask = np.array(Image.open(mask_path).convert("L"), dtype=np.float32)
         mask[mask == 255.0] = 1.0 
         if self.transform is not None: 
