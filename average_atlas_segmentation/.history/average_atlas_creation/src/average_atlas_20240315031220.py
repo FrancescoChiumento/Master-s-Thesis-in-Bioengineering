@@ -302,7 +302,7 @@ def register_femur_mask_function(base_dir, moving_femur_mask_path, all_transform
     transformix_exe_path = paths["transformix_exe_path"]
     moving_images_dir = paths["moving_images_directory"]
 
-    # Apply the transformations to the femur mask
+       # Apply the transformations to the femur mask
     input_mask = moving_femur_mask_path
     input_image = sitk.ReadImage(input_mask)
     input_mask_levelset = sitkf.binary2levelset(input_image)
