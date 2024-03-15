@@ -24,7 +24,9 @@ Two types of Average Atlases can be generated:
 - Average Atlas of the MRIs and binary masks of the femur and femoral cartilages of the patients;
 
 - Average Atlas of the MRIs with segmentation of the femur and femoral cartilage performed directly from the average MRIs.
-  
+
+[![visualized with ITK-SNAP](https://img.shields.io/badge/visualized%20with-ITK--SNAP-c80000?style=flat)](http://www.itksnap.org)
+
 ![Testo alternativo](images/AverageAtlas.gif)
 
 After creating the Average Atlas, it can be utilized within pyKNEEr in the *reference* folder as a new reference.
@@ -33,9 +35,6 @@ After creating the Average Atlas, it can be utilized within pyKNEEr in the *refe
 For the training, validation, and testing of the 2D UNet neural network, the following percentages of their respective sets were used: training 66.66%, validation 25%, and testing 8.33%.
 <br>
 ![Testo alternativo](images/dataset%20distribution.png)
-
-
-
 
 
 
