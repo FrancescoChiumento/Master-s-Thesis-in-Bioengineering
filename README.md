@@ -36,6 +36,15 @@ For the training, validation, and testing of the 2D UNet neural network, the fol
 <br>
 ![Testo alternativo](images/dataset%20distribution.png)
 
+### Training
+
+### Validation
+
+### Testing
+
+### 3D Volume Reconstruction & Post-processing
+
+## Examples
 
 
 
