@@ -7,11 +7,11 @@ from albumentations.pytorch import ToTensorV2
 from PIL import Image
 import numpy as np
 import torchvision
-from dataset import CarvanaDataset
+from dataset import PatientDataset
 from torch.utils.data import DataLoader
 import os
 
-class NewDataDataset(CarvanaDataset):
+class NewDataDataset(PatientDataset):
     def __init__(self, image_dir, mask_dir, transform=None):
         super().__init__(image_dir, mask_dir, transform)
         self.mask_dir = mask_dir

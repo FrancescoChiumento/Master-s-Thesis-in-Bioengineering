@@ -1,6 +1,6 @@
 import torch
 import torchvision
-from dataset import CarvanaDataset
+from dataset import PatientDataset
 from torch.utils.data import DataLoader
 
 def save_checkpoint(state, filename): 
@@ -22,7 +22,7 @@ def get_loaders(
         num_workers = 4,
         pin_memory = True,
 ):
-    train_ds = CarvanaDataset(
+    train_ds = PatientDataset(
         image_dir =train_dir,
         mask_dir = train_maskdir,
         transform=train_transform,
@@ -36,7 +36,7 @@ def get_loaders(
         shuffle = True,
     )
 
-    val_ds = CarvanaDataset(
+    val_ds = PatientDataset(
         image_dir = val_dir,
         mask_dir = val_maskdir,
         transform=val_transform,
