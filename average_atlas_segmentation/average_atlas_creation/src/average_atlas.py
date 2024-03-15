@@ -261,7 +261,7 @@ def register_moving_images_function(base_dir):
     return registered_image_paths, moving_files_path, patient_folder_name, transform_parameters_dict
 
 
-def register_femur_mask_function(base_dir, moving_femur_mask_path, all_transform_parameters_files, moving_image_path, patient_folder_name,file_name):
+def register_femur_mask_function(base_dir, moving_femur_mask_path, all_transform_parameters_files, moving_image_path, file_name):
     """
     Execute the registration process for the femur mask.
 
@@ -296,11 +296,7 @@ def register_femur_mask_function(base_dir, moving_femur_mask_path, all_transform
 
 
     paths = get_all_paths(base_dir)
-
-    moving_files_path = [os.path.join(paths["images_directory"], f) for f in os.listdir(paths["images_directory"]) if f.endswith('.mha')]
-    base_output_folder = paths["output_folder_path"]
     transformix_exe_path = paths["transformix_exe_path"]
-    moving_images_dir = paths["moving_images_directory"]
 
     # Apply the transformations to the femur mask
     input_mask = moving_femur_mask_path
@@ -341,7 +337,7 @@ def register_femur_mask_function(base_dir, moving_femur_mask_path, all_transform
     sitk.WriteImage(output_image_binary, renamed_image_output_path)
     return renamed_image_output_path
 
-def register_cartilage_mask_function(base_dir, moving_cartilage_mask_path, all_transform_parameters_files, moving_image_path, patient_folder_name,file_name):
+def register_cartilage_mask_function(base_dir, moving_cartilage_mask_path, all_transform_parameters_files, moving_image_path, file_name):
     """
     Execute the registration process for the femoral cartilage mask.
 
@@ -379,11 +375,7 @@ def register_cartilage_mask_function(base_dir, moving_cartilage_mask_path, all_t
     
     paths = get_all_paths(base_dir)
     transformix_exe_path = paths["transformix_exe_path"]
-
-    moving_files_path = [os.path.join(paths["images_directory"], f) for f in os.listdir(paths["images_directory"]) if f.endswith('.mha')]
-    base_output_folder = paths["output_folder_path"]
     transformix_exe_path = paths["transformix_exe_path"]
-    moving_images_dir = paths["moving_images_directory"]
 
     for idx, transform_file in enumerate(all_transform_parameters_files):
         print(f"Starting registration {idx + 1} of the femural cartilage mask {moving_image_path}")
@@ -488,12 +480,12 @@ def register_masks_for_image(base_dir, moving_image_path, all_transform_paramete
     patient_folder_name = os.path.basename(os.path.dirname(moving_image_path))
     
     # Registration of the femur masks
-    renamed_femur_mask_output_path = register_femur_mask_function(base_dir, moving_femur_mask_path, all_transform_parameters_files, moving_image_path, patient_folder_name, file_name)
+    renamed_femur_mask_output_path = register_femur_mask_function(base_dir, moving_femur_mask_path, all_transform_parameters_files, moving_image_path, file_name)
     sitk_image = sitk.ReadImage(renamed_femur_mask_output_path)
     img_array = sitk.GetArrayFromImage(sitk_image)
 
     # Registration of the femural cartilage masks
-    renamed_cartilage_mask_output_path = register_cartilage_mask_function(base_dir, moving_cartilage_mask_path, all_transform_parameters_files, moving_image_path, patient_folder_name, file_name)
+    renamed_cartilage_mask_output_path = register_cartilage_mask_function(base_dir, moving_cartilage_mask_path, all_transform_parameters_files, moving_image_path, file_name)
     sitk_image = sitk.ReadImage(renamed_cartilage_mask_output_path)
     img_array = sitk.GetArrayFromImage(sitk_image)
     print()
