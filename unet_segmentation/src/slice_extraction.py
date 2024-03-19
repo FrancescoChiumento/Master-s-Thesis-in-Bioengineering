@@ -14,17 +14,13 @@ def extract_slices(mha_path, output_dir, prefix, is_mask=False, desired_size=(51
         if is_mask:
             slice = slice * 255
 
-        slice_padded = pad_image(slice, desired_size)
-        
+        slice_padded = pad_image(slice, desired_size)    
         img = Image.fromarray(slice_padded.astype('uint8'))
-
         img = img.rotate(-180)
-
         img = ImageOps.mirror(img)
-        
+     
         img_filename = f"{prefix}_{str(i).zfill(4)}.png"
         img.save(os.path.join(output_dir, img_filename))
-
 
 def pad_image(array, desired_size):
  
@@ -32,11 +28,8 @@ def pad_image(array, desired_size):
     delta_height = desired_size[0] - array.shape[0]
     top, bottom = delta_height // 2, delta_height - (delta_height // 2)
     left, right = delta_width // 2, delta_width - (delta_width // 2)
-    
 
     return np.pad(array, ((top, bottom), (left, right)), 'constant', constant_values=0)
-
-
 
 images_dir = r"images"
 masks_dir = r"masks"

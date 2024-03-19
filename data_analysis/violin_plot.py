@@ -29,8 +29,6 @@ data_updated = {
     'Average_Atlas_Manually_Segmented': [-0.01, -0.09, -0.02, 0.12, 0.15, 0.15, -0.08, 0.03, -0.07, 0.01, -0.04, 0.03]  # New data for the 12th patient included
 }
 
-
-
 # Creating a new DataFrame
 df_jaccard_updated = pd.DataFrame(data_updated)
 
