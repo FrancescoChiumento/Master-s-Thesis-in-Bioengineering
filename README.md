@@ -1,8 +1,8 @@
 # Comprehensive Femoral Cartilage Segmentation via Atlas-Based Registration and UNet Deep Learning
 ## Utilizing 3T Sagittal DP Cube MR Imaging for Advanced Cartilage Analysis
-[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-goldenrod.svg)](https://opensource.org/licenses/GPL-3.0)
-![Python 3.8](https://img.shields.io/badge/python-3.8-cornflowerblue)
-[![Thesis](https://img.shields.io/badge/thesis-link-palegreen.svg)](https://hdl.handle.net/20.500.12608/62076)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-green.svg)](https://opensource.org/licenses/GPL-3.0)
+![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)
+[![Thesis](https://img.shields.io/badge/thesis-link-blue.svg)](https://hdl.handle.net/20.500.12608/62076)
 
 In this thesis conducted at the Computational Bioengineering Laboratory of the Rizzoli Orthopaedic Institute in Bologna, two methods for femoral cartilage segmentation were implemented: one method leverages the creation of an Average Atlas as a reference within the pyKNEEr software, and the other employs a neural network UNet 2D developed using PyTorch.
 
@@ -52,9 +52,11 @@ __Paper__: Bonaretti S., Gold G., Beaupre G. pyKNEEr: [*An image analysis workfl
 __Code__: Bonaretti S. pyKNEEr. Zenodo. 2019. 10.5281/zenodo.2574171 [*Link*](https://zenodo.org/records/7695948)  
 __Data__: Dataset in (Bonaretti S. et al. 2019). Zenodo. 10.5281/zenodo.2583184 [*Link*](https://zenodo.org/records/2583184)  
 
-[2] Carballido-Gamio, J. [*Generation of an atlas of the proximal femur and its application to trabecular bone analysis*](https://pubmed.ncbi.nlm.nih.gov/21432904/)  
+[2] __Paper__: Carballido-Gamio, J. [*Generation of an atlas of the proximal femur and its application to trabecular bone analysis*](https://pubmed.ncbi.nlm.nih.gov/21432904/)
 
 [3] __Repository__: Persson, A. Machine Learning Collection. GitHub. 2023. [*Link*](https://github.com/aladdinpersson/Machine-Learning-Collection)  
+
+[4] __Paper__: Ronneberger, O., Fischer, P., & Brox, T. (2015). U-Net: Convolutional Networks for Biomedical Image Segmentation. arXiv:1505.04597v1. [*Link*](https://arxiv.org/abs/1505.04597)
 
 
 
