@@ -1,8 +1,8 @@
 # Comprehensive Femoral Cartilage Segmentation via Atlas-Based Registration and UNet Deep Learning
 ## Utilizing 3T Sagittal DP Cube MR Imaging for Advanced Cartilage Analysis
-[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-goldenrod.svg)](https://opensource.org/licenses/GPL-3.0)
-![Python 3.8](https://img.shields.io/badge/python-3.8-cornflowerblue)
-[![Thesis](https://img.shields.io/badge/thesis-link-palegreen.svg)](https://hdl.handle.net/20.500.12608/62076)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-green.svg)](https://opensource.org/licenses/GPL-3.0)
+![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)
+[![Thesis](https://img.shields.io/badge/thesis-link-blue.svg)](https://hdl.handle.net/20.500.12608/62076)
 
 In this thesis conducted at the Computational Bioengineering Laboratory of the Rizzoli Orthopaedic Institute in Bologna, two methods for femoral cartilage segmentation were implemented: one method leverages the creation of an Average Atlas as a reference within the pyKNEEr software, and the other employs a neural network UNet 2D developed using PyTorch.
 
