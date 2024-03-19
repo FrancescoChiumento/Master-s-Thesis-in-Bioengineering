@@ -32,8 +32,8 @@ def get_all_paths(base_dir):
 
     Example
     -------
-    >>> base_directory = "/path/to/base/directory"
-    >>> paths = get_all_paths(base_directory)
+    >>> base_dir = "/path/to/base/directory"
+    >>> paths = get_all_paths(base_dir)
     >>> print(paths["elastix_exe_path"])
     "/path/to/base/directory/elastix/elastix.exe"
     """
@@ -204,18 +204,18 @@ def register_moving_images_function(base_dir):
     
     for moving_image_path in moving_files_path:
         file_name = os.path.basename(moving_image_path).replace('.mha', '')
-        fase1_femur_folder = os.path.join(base_output_folder, file_name, "fase1_femur")
-        os.makedirs(fase1_femur_folder, exist_ok=True)
-        fase2_femur_folder = os.path.join(base_output_folder, file_name, "fase2_femur")
-        os.makedirs(fase2_femur_folder, exist_ok=True)
-        fase2_cartilage_folder = os.path.join(base_output_folder, file_name, "fase2_cartilage")
-        os.makedirs(fase2_cartilage_folder, exist_ok=True)
+        phase1_femur_folder = os.path.join(base_output_folder, file_name, "phase1_femur")
+        os.makedirs(phase1_femur_folder, exist_ok=True)
+        phase2_femur_folder = os.path.join(base_output_folder, file_name, "phase2_femur")
+        os.makedirs(phase2_femur_folder, exist_ok=True)
+        phase2_cartilage_folder = os.path.join(base_output_folder, file_name, "phase2_cartilage")
+        os.makedirs(phase2_cartilage_folder, exist_ok=True)
         
         print(f"\nStarting registration for {moving_image_path}")
         print()
         start_time = time.time()
         
-        result = run_registration(fixed_image_path, moving_image_path, dilated_f_mask_file_path, fase1_femur_folder, parameters_files, elastix_exe_path)
+        result = run_registration(fixed_image_path, moving_image_path, dilated_f_mask_file_path, phase1_femur_folder, parameters_files, elastix_exe_path)
         elapsed_time = time.time() - start_time
         if result.returncode != 0:
             print(f"Error during the registration of femur for {moving_image_path}. Error code: {result.returncode}")
@@ -224,13 +224,13 @@ def register_moving_images_function(base_dir):
         print(f"Registration of the femur completed for {moving_image_path} in {elapsed_time:.2f} seconds.")
         print()
 
-        new_moving_image_path = os.path.join(fase1_femur_folder, "result.2.mha")
+        new_moving_image_path = os.path.join(phase1_femur_folder, "result.2.mha")
         
         # Second phase registration
         print(f"Starting second phase registration for {moving_image_path}")
         print()
         start_time = time.time()
-        result = run_registration(fixed_image_path, new_moving_image_path, dilated_fc_mask_file_path, fase2_cartilage_folder, parameters_files, elastix_exe_path)
+        result = run_registration(fixed_image_path, new_moving_image_path, dilated_fc_mask_file_path, phase2_cartilage_folder, parameters_files, elastix_exe_path)
         if result.returncode != 0:
             print(f"Error during the registration of the femural cartilage for {moving_image_path}. Error code: {result.returncode}")
             print()
@@ -239,17 +239,17 @@ def register_moving_images_function(base_dir):
         print()
         
         # Rename the transformed image to avoid name conflicts
-        original_image_output_path = os.path.join(fase2_cartilage_folder, "result.2.mha")
-        renamed_image_output_path = os.path.join(fase2_cartilage_folder, "final_registered_moving_image.mha")
+        original_image_output_path = os.path.join(phase2_cartilage_folder, "result.2.mha")
+        renamed_image_output_path = os.path.join(phase2_cartilage_folder, "final_registered_moving_image.mha")
         os.rename(original_image_output_path, renamed_image_output_path)
 
          # Final transform of the femur mask using Transformix
-        transform_parameters_file2_fase1 = os.path.join(fase1_femur_folder, "TransformParameters.2.txt")
-        transform_parameters_file2_fase2 = os.path.join(fase2_cartilage_folder, "TransformParameters.2.txt")
+        transform_parameters_file2_phase1 = os.path.join(phase1_femur_folder, "TransformParameters.2.txt")
+        transform_parameters_file2_phase2 = os.path.join(phase2_cartilage_folder, "TransformParameters.2.txt")
 
         all_transform_parameters_files = [
-        transform_parameters_file2_fase1, 
-        transform_parameters_file2_fase2 
+        transform_parameters_file2_phase1, 
+        transform_parameters_file2_phase2 
         ]
         transform_parameters_dict[file_name] = all_transform_parameters_files
         
@@ -290,13 +290,13 @@ def register_femur_mask_function(base_dir, moving_femur_mask_path, all_transform
     paths = get_all_paths(base_dir)
     transformix_exe_path = paths["transformix_exe_path"]
 
-    fase2_femur_folder = os.path.join(base_dir, "outputs", file_name, "fase2_femur")
+    phase2_femur_folder = os.path.join(base_dir, "outputs", file_name, "phase2_femur")
 
     # Apply the transformations to the femur mask
     input_mask = moving_femur_mask_path
     input_image = sitk.ReadImage(input_mask)
     input_mask_levelset = sitkf.binary2levelset(input_image)
-    temp_levelset_path = os.path.join(fase2_femur_folder, "temp_levelset.mha")
+    temp_levelset_path = os.path.join(phase2_femur_folder, "temp_levelset.mha")
     sitk.WriteImage(input_mask_levelset, temp_levelset_path)
 
     for idx, transform_file in enumerate(all_transform_parameters_files):
@@ -305,9 +305,9 @@ def register_femur_mask_function(base_dir, moving_femur_mask_path, all_transform
         start_time = time.time()
 
         output_file_name = "result.mha"
-        output_path = os.path.join(fase2_femur_folder, output_file_name)
+        output_path = os.path.join(phase2_femur_folder, output_file_name)
     
-        result = subprocess.run([transformix_exe_path, "-in", temp_levelset_path, "-out", fase2_femur_folder, "-tp", transform_file])
+        result = subprocess.run([transformix_exe_path, "-in", temp_levelset_path, "-out", phase2_femur_folder, "-tp", transform_file])
         if result.returncode != 0:
             print(f"Error during the registration {idx + 1} of the femural mask {moving_image_path}. error code: {result.returncode}")
             print()
@@ -321,13 +321,13 @@ def register_femur_mask_function(base_dir, moving_femur_mask_path, all_transform
         output_image = sitk.ReadImage(output_path)
         binary_output = sitkf.levelset2binary(output_image)
         cleaned_levelset_output = sitkf.binary2levelset(binary_output)
-        temp_levelset_path_next = os.path.join(fase2_femur_folder, f"temp_levelset_{idx}.mha")
+        temp_levelset_path_next = os.path.join(phase2_femur_folder, f"temp_levelset_{idx}.mha")
         sitk.WriteImage(cleaned_levelset_output, temp_levelset_path_next)
         temp_levelset_path = temp_levelset_path_next
 
     output_image = sitk.ReadImage(output_path)
     output_image_binary = sitkf.levelset2binary(output_image)    
-    renamed_image_output_path = os.path.join(fase2_femur_folder, "registered_femur_mask.mha")
+    renamed_image_output_path = os.path.join(phase2_femur_folder, "registered_femur_mask.mha")
     sitk.WriteImage(output_image_binary, renamed_image_output_path)
 
     return renamed_image_output_path
@@ -360,12 +360,12 @@ def register_cartilage_mask_function(base_dir, moving_cartilage_mask_path, all_t
     definitions in `get_all_paths` function. It saves the transformed masks in the respective 
     directories under the "outputs" folder.
     """    
-    fase2_cartilage_folder = os.path.join(base_dir, "outputs", file_name, "fase2_cartilage")
+    phase2_cartilage_folder = os.path.join(base_dir, "outputs", file_name, "phase2_cartilage")
 
     # Apply the transformations to the femur cartilage mask 
     input_mask_fc_image = sitk.ReadImage(moving_cartilage_mask_path)
     input_mask_fc_levelset = sitkf.binary2levelset(input_mask_fc_image)
-    temp_levelset_fc_path = os.path.join(fase2_cartilage_folder, "temp_levelset_fc.mha")
+    temp_levelset_fc_path = os.path.join(phase2_cartilage_folder, "temp_levelset_fc.mha")
     sitk.WriteImage(input_mask_fc_levelset, temp_levelset_fc_path)
     
     paths = get_all_paths(base_dir)
@@ -377,9 +377,9 @@ def register_cartilage_mask_function(base_dir, moving_cartilage_mask_path, all_t
         start_time = time.time()
 
         output_file_name = "result.mha"
-        output_path = os.path.join(fase2_cartilage_folder, output_file_name)
+        output_path = os.path.join(phase2_cartilage_folder, output_file_name)
 
-        result = subprocess.run([transformix_exe_path, "-in", temp_levelset_fc_path, "-out", fase2_cartilage_folder, "-tp", transform_file])
+        result = subprocess.run([transformix_exe_path, "-in", temp_levelset_fc_path, "-out", phase2_cartilage_folder, "-tp", transform_file])
         if result.returncode != 0:
             print(f"Error during the transformation {idx + 1} of the femural cartilage mask{moving_image_path}. Error code: {result.returncode}")
             print()
@@ -393,27 +393,27 @@ def register_cartilage_mask_function(base_dir, moving_cartilage_mask_path, all_t
         output_image = sitk.ReadImage(output_path)
         binary_output = sitkf.levelset2binary(output_image)
         cleaned_levelset_output = sitkf.binary2levelset(binary_output)
-        temp_levelset_fc_path_next = os.path.join(fase2_cartilage_folder, f"temp_levelset_fc_{idx}.mha")
+        temp_levelset_fc_path_next = os.path.join(phase2_cartilage_folder, f"temp_levelset_fc_{idx}.mha")
         sitk.WriteImage(cleaned_levelset_output, temp_levelset_fc_path_next)
         temp_levelset_fc_path = temp_levelset_fc_path_next
 
     output_image = sitk.ReadImage(output_path)
     output_image_binary = sitkf.levelset2binary(output_image)  
-    renamed_image_output_path = os.path.join(fase2_cartilage_folder, "registered_femoral_cartilage_mask.mha")
+    renamed_image_output_path = os.path.join(phase2_cartilage_folder, "registered_femoral_cartilage_mask.mha")
     sitk.WriteImage(output_image_binary, renamed_image_output_path)
 
     return renamed_image_output_path
 
-def get_registered_image_paths(base_directory):
+def get_registered_image_paths(base_dir):
     """
     Retrieve paths of registered images from the specified directory.
 
-    This function searches for finalized registered images in the "fase2_cartilage" subdirectory 
+    This function searches for finalized registered images in the "phase2_cartilage" subdirectory 
     of each patient folder within the "outputs" folder and returns a list of their paths.
 
     Parameters
     ----------
-    base_directory : str
+    base_dir : str
         The root directory from which to search for patient folders and their corresponding 
         registered images.
 
@@ -421,21 +421,21 @@ def get_registered_image_paths(base_directory):
     -------
     list
         A list of tuples containing the patient folder name and the path to the registered images 
-        found under each patient's "fase2_cartilage" subdirectory.
+        found under each patient's "phase2_cartilage" subdirectory.
 
     Notes
     -----
     The function assumes a specific directory structure where each patient has a subdirectory named 
-    "fase2_cartilage" containing the registered images with the filename 
+    "phase2_cartilage" containing the registered images with the filename 
     "final_registered_moving_image.mha" within the "outputs" folder.
     """
     registered_image_paths = []
-    outputs_directory = os.path.join(base_directory, "outputs")
+    outputs_directory = os.path.join(base_dir, "outputs")
     patient_folders = [d for d in os.listdir(outputs_directory) if os.path.isdir(os.path.join(outputs_directory, d))]
 
     for patient_folder in patient_folders:
-        fase2_folder = os.path.join(outputs_directory, patient_folder, "fase2_cartilage")
-        image_path = os.path.join(fase2_folder, "final_registered_moving_image.mha")
+        phase2_folder = os.path.join(outputs_directory, patient_folder, "phase2_cartilage")
+        image_path = os.path.join(phase2_folder, "final_registered_moving_image.mha")
         if os.path.exists(image_path):
             registered_image_paths.append((patient_folder, image_path))
 
@@ -482,7 +482,7 @@ def register_masks_for_image(base_dir, moving_image_path, all_transform_paramete
     
     return renamed_femur_mask_output_path, renamed_cartilage_mask_output_path
 
-def get_registered_mask_paths(base_directory, mask_filename, subfolder="fase2_cartilage"):
+def get_registered_mask_paths(base_dir, mask_filename, subfolder="phase2_cartilage"):
     """
     Retrieve paths of registered masks from the specified directory.
 
@@ -491,14 +491,14 @@ def get_registered_mask_paths(base_directory, mask_filename, subfolder="fase2_ca
 
     Parameters
     ----------
-    base_directory : str
+    base_dir : str
         The root directory from which to search for patient folders and their corresponding 
         registered masks.
     mask_filename : str
         The filename of the mask to search for within the subdirectory.
     subfolder : str, optional
         The name of the subdirectory under each patient folder where the mask is expected to be found. 
-        Default is "fase2_cartilage".
+        Default is "phase2_cartilage".
 
     Returns
     -------
@@ -512,7 +512,7 @@ def get_registered_mask_paths(base_directory, mask_filename, subfolder="fase2_ca
     by `mask_filename`.
     """
     mask_paths = []
-    outputs_directory = os.path.join(base_directory, "outputs")
+    outputs_directory = os.path.join(base_dir, "outputs")
     patient_folders = [d for d in os.listdir(outputs_directory) if os.path.isdir(os.path.join(outputs_directory, d))]
     
     for patient_folder in patient_folders:
@@ -582,17 +582,17 @@ def binarize_image(image, threshold=0.5):
     binary_image = sitk.BinaryThreshold(image, lowerThreshold=threshold, upperThreshold=1.0, insideValue=1, outsideValue=0)
     return binary_image
 
-def compute_and_save_averages(base_directory, output_directory):
+def compute_and_save_averages(base_dir, output_directory):
     """
     Compute average images and masks, then save them to the specified directory.
 
     This function calculates the average image and masks (femur and cartilage) from registered 
-    images and masks located in the base_directory. It then saves these averages to the 
+    images and masks located in the base_dir. It then saves these averages to the 
     output_directory. The average masks are also binarized before saving.
 
     Parameters
     ----------
-    base_directory : str
+    base_dir : str
         The directory containing the registered images and masks.
     output_directory : str
         The directory where the averaged and binarized images and masks will be saved.
@@ -608,7 +608,7 @@ def compute_and_save_averages(base_directory, output_directory):
     are determined by the helper functions `get_registered_image_paths` and `get_registered_mask_paths`.
     """
 
-    registered_image_paths = get_registered_image_paths(base_directory)
+    registered_image_paths = get_registered_image_paths(base_dir)
     print("Calculation of the average image of the registered images...")
     print()
     average_image = compute_average_image(registered_image_paths)
@@ -618,7 +618,7 @@ def compute_and_save_averages(base_directory, output_directory):
     print("Average image saved")
     print()
     
-    femur_mask_paths = get_registered_mask_paths(base_directory, "registered_femur_mask.mha", "fase2_femur")
+    femur_mask_paths = get_registered_mask_paths(base_dir, "registered_femur_mask.mha", "phase2_femur")
     print("Calculation of then average image for the femural mask...")
     print()
     average_femur_mask = compute_average_image(femur_mask_paths)
@@ -627,7 +627,7 @@ def compute_and_save_averages(base_directory, output_directory):
     binary_average_femur_mask = binarize_image(average_femur_mask)
     sitk.WriteImage(binary_average_femur_mask, os.path.join(output_directory, "binary_average_femur_mask.mha"))
     
-    cartilage_mask_paths = get_registered_mask_paths(base_directory, "registered_femoral_cartilage_mask.mha", "fase2_cartilage")
+    cartilage_mask_paths = get_registered_mask_paths(base_dir, "registered_femoral_cartilage_mask.mha", "phase2_cartilage")
     print("Calculation of then average image for the femural cartilage mask...")
     print()
     average_cartilage_mask = compute_average_image(cartilage_mask_paths)
@@ -641,17 +641,14 @@ def compute_and_save_averages(base_directory, output_directory):
 
 def compute_atlas_function(base_dir):
     """
-    Compute and save the average atlas based on registered images and masks.
+    Computes an atlas from a set of images located in a specified base directory and saves the output in an atlas directory.
 
-    This function calculates the average atlas (both images and masks) from registered 
-    images and masks located in the base_dir. The average atlas is then saved to an 
-    "atlas_output" subdirectory within the base_dir.
+    This function is designed to process a collection of images to generate an atlas, which involves computing average images or other statistical representations. The results are saved in a dedicated output directory within the base directory. The actual computation and saving of the averages or atlas representation is handled by the `compute_and_save_averages` function.
 
     Parameters
     ----------
     base_dir : str
-        The root directory containing all the necessary files and subdirectories 
-        for atlas computation, including registered images and masks.
+        The base directory path where the input images are located. This directory should contain all the necessary files and subdirectories for the computation of the atlas. The function will create an "atlas_output" subdirectory here to store the results.
 
     Returns
     -------
@@ -659,12 +656,11 @@ def compute_atlas_function(base_dir):
 
     Notes
     -----
-    This function assumes a specific directory structure and naming conventions 
-    for the files. The structure is determined by the helper functions 
-    `get_all_paths` and `compute_and_save_averages`.
-    The output directory can be modified within the function if desired.
+    - The function assumes that the `compute_and_save_averages` function is available and correctly implemented to handle the computation of the atlas. This includes any averaging, normalization, or other statistical processing required to create the atlas from the input images.
+    - The output directory named "atlas_output" is automatically created in the base directory if it does not already exist. All output files related to the atlas are saved in this directory.
+    - The function does not return any value or provide direct feedback within the function itself about the success or failure of the atlas computation and saving process. Any such feedback should be implemented within the `compute_and_save_averages` function or through external means.
+    
     """
-    paths = get_all_paths(base_dir)
     output_directory = os.path.join(base_dir, "atlas_output")  
 
     compute_and_save_averages(base_dir, output_directory)
