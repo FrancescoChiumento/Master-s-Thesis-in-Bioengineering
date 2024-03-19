@@ -161,50 +161,49 @@ def dilate_mask_function(base_dir):
     
 def register_moving_images_function(base_dir):
     """
-    Execute a two-phase registration process for all moving images in the specified directory.
-
-    This function performs image registration using Elastix. In the first phase, moving images
-    are registered to the fixed image using the femur mask. In the second phase, the output of 
-    the first phase is registered again using the cartilage mask. The function also handles 
-    the saving of the transformed images and masks.
-
+    Registers moving images to a fixed image and performs subsequent transformations.
+    
+    This function processes a collection of moving images by first aligning them to a fixed image (the first phase) and then performing a second phase of registration using modified mask files. The results include transformed moving images and a dictionary of transformation parameters for further use. The function assumes a specific directory structure and file naming convention based on the input base directory.
+    
     Parameters
     ----------
     base_dir : str
-        Base directory path from which all other paths are derived.
-
+        The base directory path where the input files are located and where the output will be saved. This directory should contain subdirectories for images, masks, and parameter files required for image registration.
+    
     Returns
     -------
-    registered_image_paths : list
-        List of paths to the registered images.
-    moving_files_path : list
-        List of paths to the moving images.
-    patient_folder_name : str
-        Name of the patient folder.
+    moving_files_path : list of str
+        A list of paths to the moving images that were processed.
+    
+    transform_parameters_dict : dict
+        A dictionary where each key is the name of a moving image (without the file extension) and the value is a list of paths to the transformation parameters files generated during the registration process. This dictionary is also saved as a pickle file in the base directory for later use.
+
+    Raises
+    ------
+    SystemExit
+        If any registration phase fails, the function will print an error message with the return code and terminate the execution using `exit()`.
 
     Notes
     -----
-    The function assumes that the directory structure and filenames are consistent with the 
-    definitions in `get_all_paths` function. It saves the registered images and masks in 
-    respective directories under the "outputs" folder.
+    - The function requires the existence of a `get_all_paths` function that retrieves paths for images, masks, parameter files, and output directories based on the `base_dir`.
+    - It is assumed that all moving images have the '.mha' extension and are located within the `images_directory` specified in the paths dictionary.
+    - The registration process is divided into two phases: the first targets the femur, and the second targets the femoral cartilage. Each phase requires different masks and outputs to separate directories.
+    - Elapsed time for each registration phase is printed to the console.
+    - A pickle file containing the transformation parameters dictionary is saved in the base directory for future reference.
+
     """
     paths = get_all_paths(base_dir)
     transform_parameters_dict = {}
     moving_files_path = [os.path.join(paths["images_directory"], f) for f in os.listdir(paths["images_directory"]) if f.endswith('.mha')]
     dilated_f_mask_file_path = os.path.join(paths["f_mask_folder_path"], "dilated_femur_mask.mha")
     dilated_fc_mask_file_path = os.path.join(paths["fc_mask_folder_path"], "dilated_cartilage_mask.mha")
-    moving_images_dir = paths["moving_images_directory"]
     base_output_folder = paths["output_folder_path"]
     elastix_exe_path = paths["elastix_exe_path"]
     parameters_files = paths["parameters_files"]
     fixed_image_path = paths["fixed_image_path"]
-    registered_image_paths = []
     
     for moving_image_path in moving_files_path:
         file_name = os.path.basename(moving_image_path).replace('.mha', '')
-        patient_folder_name = os.path.basename(os.path.dirname(moving_image_path))
-        moving_femur_mask_path = os.path.join(moving_images_dir, file_name, file_name + '_femur_mask.mha')
-        moving_cartilage_mask_path = os.path.join(moving_images_dir, file_name, file_name + '_cartilage_mask.mha')
         fase1_femur_folder = os.path.join(base_output_folder, file_name, "fase1_femur")
         os.makedirs(fase1_femur_folder, exist_ok=True)
         fase2_femur_folder = os.path.join(base_output_folder, file_name, "fase2_femur")
@@ -243,8 +242,7 @@ def register_moving_images_function(base_dir):
         original_image_output_path = os.path.join(fase2_cartilage_folder, "result.2.mha")
         renamed_image_output_path = os.path.join(fase2_cartilage_folder, "final_registered_moving_image.mha")
         os.rename(original_image_output_path, renamed_image_output_path)
-        registered_image_paths.append(renamed_image_output_path)
-        
+
          # Final transform of the femur mask using Transformix
         transform_parameters_file2_fase1 = os.path.join(fase1_femur_folder, "TransformParameters.2.txt")
         transform_parameters_file2_fase2 = os.path.join(fase2_cartilage_folder, "TransformParameters.2.txt")
@@ -258,7 +256,7 @@ def register_moving_images_function(base_dir):
     with open(os.path.join(paths["base_dir"], "transform_parameters_dict.pkl"), 'wb') as f:
         pickle.dump(transform_parameters_dict, f)
 
-    return registered_image_paths, moving_files_path, patient_folder_name, transform_parameters_dict
+    return moving_files_path, transform_parameters_dict
 
 
 def register_femur_mask_function(base_dir, moving_femur_mask_path, all_transform_parameters_files, moving_image_path, file_name):
@@ -293,10 +291,6 @@ def register_femur_mask_function(base_dir, moving_femur_mask_path, all_transform
     transformix_exe_path = paths["transformix_exe_path"]
 
     fase2_femur_folder = os.path.join(base_dir, "outputs", file_name, "fase2_femur")
-
-
-    paths = get_all_paths(base_dir)
-    transformix_exe_path = paths["transformix_exe_path"]
 
     # Apply the transformations to the femur mask
     input_mask = moving_femur_mask_path
@@ -335,6 +329,7 @@ def register_femur_mask_function(base_dir, moving_femur_mask_path, all_transform
     output_image_binary = sitkf.levelset2binary(output_image)    
     renamed_image_output_path = os.path.join(fase2_femur_folder, "registered_femur_mask.mha")
     sitk.WriteImage(output_image_binary, renamed_image_output_path)
+
     return renamed_image_output_path
 
 def register_cartilage_mask_function(base_dir, moving_cartilage_mask_path, all_transform_parameters_files, moving_image_path, file_name):
@@ -374,7 +369,6 @@ def register_cartilage_mask_function(base_dir, moving_cartilage_mask_path, all_t
     sitk.WriteImage(input_mask_fc_levelset, temp_levelset_fc_path)
     
     paths = get_all_paths(base_dir)
-    transformix_exe_path = paths["transformix_exe_path"]
     transformix_exe_path = paths["transformix_exe_path"]
 
     for idx, transform_file in enumerate(all_transform_parameters_files):
@@ -423,7 +417,7 @@ def get_registered_image_paths(base_directory):
         The root directory from which to search for patient folders and their corresponding 
         registered images.
 
-    Returns333
+    Returns
     -------
     list
         A list of tuples containing the patient folder name and the path to the registered images 
@@ -449,47 +443,45 @@ def get_registered_image_paths(base_directory):
 
 def register_masks_for_image(base_dir, moving_image_path, all_transform_parameters_files):
     """
-    Register femur and femoral cartilage masks for a given moving image.
+    Registers femur and femoral cartilage masks for a given moving image.
 
-    This function registers the femur and femoral cartilage masks using the transform parameters
-    obtained from the previous registration steps. It then calculates and prints the volume of 
-    the registered masks.
+    This function applies transformation parameters to the femur and cartilage masks associated with a specific moving image. It utilizes separate functions to perform the registration for each mask type. The paths to the registered mask files are returned.
 
     Parameters
     ----------
     base_dir : str
-        Base directory path from which all other paths are derived.
+        The base directory path that contains the moving images and masks. This directory is expected to follow a specific structure: a subdirectory named "moving_images_directory" should contain folders for each moving image, within which the masks are located.
     moving_image_path : str
-        Path to the moving image for which the masks need to be registered.
+        The path to the moving image file for which the masks are to be registered. This image's name (minus the file extension) is used to locate the corresponding mask files.
     all_transform_parameters_files : list of str
-        List of paths to the transform parameters files to be used for the registration.
+        A list containing the paths to the transformation parameters files. These files are used to apply transformations to the masks, aligning them with the fixed image used in the registration process.
 
     Returns
     -------
-    None
+    tuple of str
+        A tuple containing two strings: the path to the registered femur mask file and the path to the registered femoral cartilage mask file, in that order.
 
     Notes
     -----
-    The function assumes that the directory structure and filenames are consistent with the 
-    definitions in `base_dir`. The function saves the registered masks in respective directories 
-    and prints their volumes.
+    - The function assumes that the mask files follow a naming convention that includes the name of the moving image and the type of mask (e.g., `image_name_femur_mask.mha` for the femur mask).
+    - It requires the presence of `register_femur_mask_function` and `register_cartilage_mask_function`, which are responsible for the actual registration of femur and cartilage masks, respectively. These functions must accept the base directory, path to the mask, list of transformation parameters files, path to the moving image, and the file name (without extension) as parameters.
+    - The function prints an empty line after completing the registration for visual separation in console outputs.
+
     """
     file_name = os.path.basename(moving_image_path).replace('.mha', '')
     moving_femur_mask_path = os.path.join(base_dir, "moving_images_directory", file_name, file_name + '_femur_mask.mha')
     moving_cartilage_mask_path = os.path.join(base_dir, "moving_images_directory", file_name, file_name + '_cartilage_mask.mha')
-    patient_folder_name = os.path.basename(os.path.dirname(moving_image_path))
     
     # Registration of the femur masks
     renamed_femur_mask_output_path = register_femur_mask_function(base_dir, moving_femur_mask_path, all_transform_parameters_files, moving_image_path, file_name)
-    sitk_image = sitk.ReadImage(renamed_femur_mask_output_path)
-    img_array = sitk.GetArrayFromImage(sitk_image)
 
     # Registration of the femural cartilage masks
     renamed_cartilage_mask_output_path = register_cartilage_mask_function(base_dir, moving_cartilage_mask_path, all_transform_parameters_files, moving_image_path, file_name)
-    sitk_image = sitk.ReadImage(renamed_cartilage_mask_output_path)
-    img_array = sitk.GetArrayFromImage(sitk_image)
+   
     print()
     
+    return renamed_femur_mask_output_path, renamed_cartilage_mask_output_path
+
 def get_registered_mask_paths(base_directory, mask_filename, subfolder="fase2_cartilage"):
     """
     Retrieve paths of registered masks from the specified directory.
