@@ -7,15 +7,22 @@ from albumentations.pytorch import ToTensorV2
 from PIL import Image
 import numpy as np
 import torchvision
-from dataset import PatientDataset
+from dataset import CarvanaDataset
 from torch.utils.data import DataLoader
 import os
 
-class NewDataDataset(PatientDataset):
+class NewDataDataset(CarvanaDataset):
     def __init__(self, image_dir, mask_dir, transform=None):
         super().__init__(image_dir, mask_dir, transform)
-        self.mask_dir = mask_dir
         self.masks = [f for f in os.listdir(mask_dir) if f.endswith('.png')]
+        
+        # Check that there is a corresponding mask for each image.
+        assert len(self.images) == len(self.masks), "The number of images and masks does not match."
+        
+        # Optional print statement for debugging.
+        for img, mask in zip(sorted(self.images), sorted(self.masks)):
+            print(f"Image: {img}, Mask: {mask}")
+            assert os.path.splitext(img)[0] == os.path.splitext(mask)[0], f"Image and mask do not match: {img} != {mask}"
 
     def __getitem__(self, index):
         img_path = os.path.join(self.image_dir, self.images[index])
@@ -71,38 +78,35 @@ BATCH_SIZE = 1
 NUM_WORKERS = 4
 PIN_MEMORY = True 
 
-if __name__ == '__main__':
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = load_model(r"\my_checkpoint.pth.tar", device)
-    
+def run_segmentation(checkpoint_path, images_dir, masks_dir, output_folder, device):
+    print("Loading the model...")
+    model = load_model(checkpoint_path, device)  # Load the UNET model from checkpoint
+
+    # Define the image transformations
     transform = A.Compose([
         A.Resize(height=512, width=512),
         A.Normalize(mean=[0.0, 0.0, 0.0], std=[1.0, 1.0, 1.0], max_pixel_value=255.0),
         ToTensorV2(),
     ])
-
-    new_data_loader = DataLoader(
-        NewDataDataset(r"\to_segment", r"\ground_truth", transform=transform),
-        batch_size=BATCH_SIZE, 
-        shuffle=False, 
-        num_workers=NUM_WORKERS, 
-        pin_memory=PIN_MEMORY
-    )
-
-    for image, img_path in new_data_loader:
-        print(f"Elaborazione del batch: {image.shape}") 
-
-    output_folder = r"\prediction"
+    
+    print("Preparing dataset...")
+    dataset = NewDataDataset(images_dir, masks_dir, transform=transform)  # Prepare the dataset
+    loader = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=4, pin_memory=True)  # Prepare the DataLoader
+    
+    print("Starting the prediction process...")
+    predictions, dice_scores = predict(model, loader, device)  # Make predictions using the model
+    
     if not os.path.exists(output_folder):
+        print(f"Creating the output directory at {output_folder}")
         os.makedirs(output_folder)
-
-    predictions, dice_scores = predict(model, new_data_loader, device)
-
-    mean_dice = sum(dice_scores) / len(dice_scores)
-    print(f"Media del coefficiente Dice: {mean_dice}")
-
+    
+    print("Saving the predicted images...")
     for idx, (pred, dice_score) in enumerate(zip(predictions, dice_scores)):
         formatted_idx = str(idx).zfill(3)
         save_path = os.path.join(output_folder, f"prediction_{formatted_idx}.png")
-        print(f"Salvataggio della predizione in: {save_path} con punteggio Dice: {dice_score}")
         torchvision.utils.save_image(pred.float(), save_path)
+        print(f"Saved prediction {formatted_idx} with Dice score: {dice_score}")
+
+    # Calculate and print the mean Dice score
+    mean_dice = sum(dice_scores) / len(dice_scores) if dice_scores else 0
+    print(f"Mean Dice score: {mean_dice:.4f}")

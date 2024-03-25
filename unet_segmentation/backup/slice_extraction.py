@@ -40,7 +40,7 @@ output_mask_dir = r"ground_truth"
 image_files = [f for f in os.listdir(images_dir) if f.endswith('.mha')]
 mask_files = [f for f in os.listdir(masks_dir) if f.endswith('.mha')]
 
-assert len(image_files) == len(mask_files), "Numero di immagini e maschere non corrisponde."
+assert len(image_files) == len(mask_files), "Number of images and masks does not match."
 
 for img_file, mask_file in zip(image_files, mask_files):
     img_name = os.path.splitext(img_file)[0]
@@ -49,7 +49,7 @@ for img_file, mask_file in zip(image_files, mask_files):
     print(f"Processing image: {img_name}")
     print(f"Corresponding mask: {mask_name}")
 
-    assert img_name == mask_name, f"Immagine e maschera non corrispondono: {img_name}, {mask_name}"
+    assert img_name == mask_name, f"Image and mask do not match: {img_name}, {mask_name}"
     
     img_mha_path = os.path.join(images_dir, img_file)
     print(f"Reading image file: {img_mha_path}")
