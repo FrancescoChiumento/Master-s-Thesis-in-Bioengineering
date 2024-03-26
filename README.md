@@ -4,7 +4,7 @@
 ![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)
 [![Thesis](https://img.shields.io/badge/thesis-link-blue.svg)](https://hdl.handle.net/20.500.12608/62076)
 
-In this thesis conducted at the Computational Bioengineering Laboratory of the Rizzoli Orthopaedic Institute in Bologna, two methods for femoral cartilage segmentation were implemented: one method leverages the creation of an Average Atlas as a reference within the pyKNEEr [Link pyKNEEr](https://sbonaretti.github.io/pyKNEEr/) software, and the other employs a neural network UNet 2D developed using PyTorch.
+In this thesis conducted at the Computational Bioengineering Laboratory of the Rizzoli Orthopaedic Institute in Bologna, two methods for femoral cartilage segmentation were implemented: one method leverages the creation of an Average Atlas as a reference within the pyKNEEr software ([Link pyKNEEr](https://sbonaretti.github.io/pyKNEEr/)), and the other employs a neural network UNet 2D developed using PyTorch.
 
 - The registration-based method includes optimization phases for Elastix parameters and performance evaluation through cross-correlation of results; 
 
