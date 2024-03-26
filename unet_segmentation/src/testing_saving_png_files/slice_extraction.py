@@ -1,6 +1,7 @@
+from PIL import Image, ImageOps
+
 import SimpleITK as sitk
 import os
-from PIL import Image, ImageOps
 import numpy as np
 import shutil
 
@@ -33,24 +34,17 @@ def pad_image(array, desired_size):
 
     return np.pad(array, ((top, bottom), (left, right)), 'constant', constant_values=0)
 
-def process_directory(image_mha_path, mask_mha_path, output_image_dir, output_mask_dir):
+def process_directory(image_mha_path, mask_mha_path, output_image_dir, output_mask_dir, use_masks=True):
 
-    # Create the output directories if they do not exist.
     os.makedirs(output_image_dir, exist_ok=True)
-    os.makedirs(output_mask_dir, exist_ok=True)
-    
-    # Extract slices from the image.
     print(f"Processing image: {image_mha_path}")
     extract_slices(image_mha_path, output_image_dir, os.path.splitext(os.path.basename(image_mha_path))[0], is_mask=False)
 
-    # Extract slices from the mask.
-    print(f"Processing mask: {mask_mha_path}")
-    extract_slices(mask_mha_path, output_mask_dir, os.path.splitext(os.path.basename(mask_mha_path))[0], is_mask=True)
+    if use_masks:
+        os.makedirs(output_mask_dir, exist_ok=True)
+        print(f"Processing mask: {mask_mha_path}")
+        extract_slices(mask_mha_path, output_mask_dir, os.path.splitext(os.path.basename(mask_mha_path))[0], is_mask=True)
 
-    print("Processing completed for the given image and mask.")
-
-
-    # Notify when processing is complete
     print("Processing completed.")
     
 def clean_folder(folder_path):

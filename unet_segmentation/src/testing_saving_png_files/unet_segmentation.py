@@ -1,35 +1,39 @@
 from model import UNET
 from utils import load_checkpoint
-from utils import check_accuracy
-import torch
-import albumentations as A
 from albumentations.pytorch import ToTensorV2
 from PIL import Image
-import numpy as np
-import torchvision
 from dataset import CarvanaDataset
 from torch.utils.data import DataLoader
+from tqdm import tqdm
+
+import torch
+import albumentations as A
+import numpy as np
+import torchvision
 import os
 
-class NewDataDataset(CarvanaDataset):
-    def __init__(self, image_dir, mask_dir, transform=None):
-        super().__init__(image_dir, mask_dir, transform)
-        self.masks = [f for f in os.listdir(mask_dir) if f.endswith('.png')]
-        
-        # Check that there is a corresponding mask for each image.
-        assert len(self.images) == len(self.masks), "The number of images and masks does not match."
-        
-        # Optional print statement for debugging.
-        for img, mask in zip(sorted(self.images), sorted(self.masks)):
-            print(f"Image: {img}, Mask: {mask}")
-            assert os.path.splitext(img)[0] == os.path.splitext(mask)[0], f"Image and mask do not match: {img} != {mask}"
 
+class NewDataDataset(CarvanaDataset):
+    def __init__(self, image_dir, mask_dir=None, transform=None):
+        super().__init__(image_dir, mask_dir, transform)
+        self.images = [f for f in os.listdir(image_dir) if f.endswith('.png')]
+        self.masks = [f for f in os.listdir(mask_dir) if f.endswith('.png')] if mask_dir is not None else None
+        
+        # If mask_dir is not None, ensure that for each image there exists a corresponding mask.
+        if self.masks is not None:
+            assert len(self.images) == len(self.masks), "Il numero di immagini e maschere non corrisponde"
+            for img, mask in zip(sorted(self.images), sorted(self.masks)):
+                assert os.path.splitext(img)[0] == os.path.splitext(mask)[0], f"Immagine e maschera non corrispondono: {img} != {mask}"
+                
     def __getitem__(self, index):
         img_path = os.path.join(self.image_dir, self.images[index])
-        mask_path = os.path.join(self.mask_dir, self.masks[index])
-
         image = np.array(Image.open(img_path).convert("RGB"))
-        mask = np.array(Image.open(mask_path).convert("L"), dtype=np.float32)
+
+        if self.masks is not None:
+            mask_path = os.path.join(self.mask_dir, self.masks[index])
+            mask = np.array(Image.open(mask_path).convert("L"), dtype=np.float32)
+        else:
+            mask = np.zeros_like(image[:, :, 0]) 
 
         if self.transform:
             augmentations = self.transform(image=image, mask=mask)
@@ -38,32 +42,49 @@ class NewDataDataset(CarvanaDataset):
 
         return image, mask
 
+
 def load_model(checkpoint_path, device):
     model = UNET(in_channels=3, out_channels=1).to(device)
     load_checkpoint(torch.load(checkpoint_path, map_location=device), model)
     model.eval()
     return model
 
-def predict(model, loader, device):
+from tqdm import tqdm
+
+from tqdm import tqdm
+
+def predict(model, loader, device, use_masks=True):
     model.eval()
     saved_predictions = []
-    dice_scores = []
+    dice_scores_messages = []  # List to accumulate DICE score messages
 
+    pbar = tqdm(total=len(loader), desc="Processing slices", unit="slice")
     with torch.no_grad():
-        for image, mask in loader:
+        for idx, (image, mask) in enumerate(loader):
             image = image.to(device)
-            mask = mask.to(device).float()
-            mask = (mask > 0.5).float()
             preds = torch.sigmoid(model(image))
-            preds_bin = (preds > 0.5).float()  
+            preds_bin = (preds > 0.5).float()
             saved_predictions.append(preds_bin)
             
-            preds_flat = preds_bin.view(-1)
-            mask_flat = mask.view(-1)
-            dice_score = dice_coefficient(preds_flat, mask_flat)
-            dice_scores.append(dice_score.item())
+            if use_masks:
+                mask = mask.to(device).float()
+                mask = (mask > 0.5).float()
+                preds_flat = preds_bin.view(-1)
+                mask_flat = mask.view(-1)
+                dice_score = dice_coefficient(preds_flat, mask_flat)
+                # Accumulate the DICE score message
+                dice_scores_messages.append(f"Slice {idx}: Dice score: {dice_score.item():.4f}")
+            
+            pbar.update(1)
+    pbar.close()
+
+    # Print all accumulated DICE score
+    for message in dice_scores_messages:
+        print(message)
     
-    return saved_predictions, dice_scores
+    return saved_predictions
+
+
 
 def dice_coefficient(pred, target):
     pred = pred.view(-1).float()
@@ -78,9 +99,9 @@ BATCH_SIZE = 1
 NUM_WORKERS = 4
 PIN_MEMORY = True 
 
-def run_segmentation(checkpoint_path, images_dir, masks_dir, output_folder, device):
+def run_segmentation(checkpoint_path, images_dir, masks_dir, output_folder, device, use_masks=True):
     print("Loading the model...")
-    model = load_model(checkpoint_path, device)  # Load the UNET model from checkpoint
+    model = load_model(checkpoint_path, device)
 
     # Define the image transformations
     transform = A.Compose([
@@ -90,23 +111,18 @@ def run_segmentation(checkpoint_path, images_dir, masks_dir, output_folder, devi
     ])
     
     print("Preparing dataset...")
-    dataset = NewDataDataset(images_dir, masks_dir, transform=transform)  # Prepare the dataset
-    loader = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=4, pin_memory=True)  # Prepare the DataLoader
+    dataset = NewDataDataset(images_dir, masks_dir if use_masks else None, transform=transform)
+    loader = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=8, pin_memory=True)
     
     print("Starting the prediction process...")
-    predictions, dice_scores = predict(model, loader, device)  # Make predictions using the model
-    
+    predictions = predict(model, loader, device, use_masks=use_masks)
+
     if not os.path.exists(output_folder):
         print(f"Creating the output directory at {output_folder}")
         os.makedirs(output_folder)
     
     print("Saving the predicted images...")
-    for idx, (pred, dice_score) in enumerate(zip(predictions, dice_scores)):
-        formatted_idx = str(idx).zfill(3)
+    for idx, pred in enumerate(predictions):
+        formatted_idx = str(idx).zfill(4)
         save_path = os.path.join(output_folder, f"prediction_{formatted_idx}.png")
-        torchvision.utils.save_image(pred.float(), save_path)
-        print(f"Saved prediction {formatted_idx} with Dice score: {dice_score}")
-
-    # Calculate and print the mean Dice score
-    mean_dice = sum(dice_scores) / len(dice_scores) if dice_scores else 0
-    print(f"Mean Dice score: {mean_dice:.4f}")
+        torchvision.utils.save_image(pred, save_path)
