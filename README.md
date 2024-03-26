@@ -4,7 +4,7 @@
 ![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)
 [![Thesis](https://img.shields.io/badge/thesis-link-blue.svg)](https://hdl.handle.net/20.500.12608/62076)
 
-In this thesis conducted at the Computational Bioengineering Laboratory of the Rizzoli Orthopaedic Institute in Bologna, two methods for femoral cartilage segmentation were implemented: one method leverages the creation of an Average Atlas as a reference within the pyKNEEr software, and the other employs a neural network UNet 2D developed using PyTorch.
+In this thesis conducted at the Computational Bioengineering Laboratory of the Rizzoli Orthopaedic Institute in Bologna, two methods for femoral cartilage segmentation were implemented: one method leverages the creation of an Average Atlas as a reference within the pyKNEEr [Link pyKNEEr](https://sbonaretti.github.io/pyKNEEr/) software, and the other employs a neural network UNet 2D developed using PyTorch.
 
 - The registration-based method includes optimization phases for Elastix parameters and performance evaluation through cross-correlation of results; 
 
@@ -13,7 +13,7 @@ In this thesis conducted at the Computational Bioengineering Laboratory of the R
 Subsequently, a statistical assessment can be performed using violin plots and Pearson correlation, while the average Hausdorff index is employed for spatial accuracy evaluation.
 
 ## Use of the Average Atlas
-To utilize the Average Atlas as a new reference in the registration and segmentation of MRIs, it is necessary to first install the pyKNEEr software. [Link pyKNEEr](https://sbonaretti.github.io/pyKNEEr/).
+To utilize the Average Atlas as a new reference in the registration and segmentation of MRIs, it is necessary to first install the pyKNEEr software.
 
 ### Average Atlas creation 
 
