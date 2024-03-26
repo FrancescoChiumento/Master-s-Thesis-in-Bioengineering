@@ -18,12 +18,12 @@ def levelset2binary(mask_LS_itk):
 def process_and_save_image(file_path, output_folder, override_label=None):
     image = sitk.ReadImage(file_path)
 
-    # erform connected component analysis on the original image
+    # Perform connected component analysis on the original image
     labels = sitk.ConnectedComponent(image)
     stats = sitk.LabelShapeStatisticsImageFilter()
     stats.Execute(labels)
 
-    # Ottieni le dimensioni delle etichette
+    # Get the dimensions of the labels
     label_sizes = {l: stats.GetNumberOfPixels(l) for l in stats.GetLabels() if l != 0}
     print(f"Dimensioni delle etichette: {label_sizes}")
 
