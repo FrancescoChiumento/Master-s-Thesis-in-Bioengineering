@@ -69,7 +69,7 @@ __Data__: Dataset in (Bonaretti S. et al. 2019). Zenodo. 10.5281/zenodo.2583184 
 
 [4] __Paper__: Ronneberger, O., Fischer, P., & Brox, T. (2015). U-Net: Convolutional Networks for Biomedical Image Segmentation. arXiv:1505.04597v1. [*Link*](https://arxiv.org/abs/1505.04597);
 
-[5] __Thesis__: Chiumento, F. (2023/2024). Development, testing and evaluation of automatic methods for knee cartilage segmentation from Magnetic Resonance Images: application to a cohort of patients affected by medial knee osteoarthritis. Master's Thesis, Department of Information Engineering - DEI, University of Padua. [*Link*](https://hdl.handle.net/20.500.12608/62076).
+[5] __Master's Thesis__: Chiumento, F. (2023/2024). Development, testing and evaluation of automatic methods for knee cartilage segmentation from Magnetic Resonance Images: application to a cohort of patients affected by medial knee osteoarthritis. Master's Thesis, Department of Information Engineering - DEI, University of Padua. [*Link*](https://hdl.handle.net/20.500.12608/62076).
 
 
 
