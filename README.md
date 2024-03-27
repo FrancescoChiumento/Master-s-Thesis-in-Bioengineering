@@ -59,13 +59,15 @@ In this instance as well, the voxel spacing of the MRIs is 0.4121x0.4121x0.4000 
 [1]  
 __Paper__: Bonaretti S., Gold G., Beaupre G. pyKNEEr: [*An image analysis workflow for open and reproducible research on femoral knee cartilage*](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0226501) PLOS ONE 15(1): e0226501  
 __Code__: Bonaretti S. pyKNEEr. Zenodo. 2019. 10.5281/zenodo.2574171 [*Link*](https://zenodo.org/records/7695948)  
-__Data__: Dataset in (Bonaretti S. et al. 2019). Zenodo. 10.5281/zenodo.2583184 [*Link*](https://zenodo.org/records/2583184)  
+__Data__: Dataset in (Bonaretti S. et al. 2019). Zenodo. 10.5281/zenodo.2583184 [*Link*](https://zenodo.org/records/2583184);
 
-[2] __Paper__: Carballido-Gamio, J. [*Generation of an atlas of the proximal femur and its application to trabecular bone analysis*](https://pubmed.ncbi.nlm.nih.gov/21432904/)
+[2] __Paper__: Carballido-Gamio, J. [*Generation of an atlas of the proximal femur and its application to trabecular bone analysis*](https://pubmed.ncbi.nlm.nih.gov/21432904/);
 
-[3] __Repository__: Persson, A. Machine Learning Collection. GitHub. 2023. [*Link*](https://github.com/aladdinpersson/Machine-Learning-Collection)  
+[3] __Repository__: Persson, A. Machine Learning Collection. GitHub. 2023. [*Link*](https://github.com/aladdinpersson/Machine-Learning-Collection);
 
-[4] __Paper__: Ronneberger, O., Fischer, P., & Brox, T. (2015). U-Net: Convolutional Networks for Biomedical Image Segmentation. arXiv:1505.04597v1. [*Link*](https://arxiv.org/abs/1505.04597)
+[4] __Paper__: Ronneberger, O., Fischer, P., & Brox, T. (2015). U-Net: Convolutional Networks for Biomedical Image Segmentation. arXiv:1505.04597v1. [*Link*](https://arxiv.org/abs/1505.04597);
+
+[5] __Thesis__: Chiumento, F. (2023/2024). Development, testing and evaluation of automatic methods for knee cartilage segmentation from Magnetic Resonance Images: application to a cohort of patients affected by medial knee osteoarthritis. Master's Thesis, Department of Information Engineering - DEI, University of Padua. [*Link*](https://hdl.handle.net/20.500.12608/62076).
 
 
 
