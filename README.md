@@ -27,14 +27,14 @@ Two types of Average Atlases can be generated:
 
 [![visualized with ITK-SNAP](https://img.shields.io/badge/visualized%20with-ITK--SNAP-c80000?style=flat)](http://www.itksnap.org)
 
-![Testo alternativo](images/AverageAtlas.gif)
+<img src="images/AverageAtlas.gif" width="550">
 
 After creating the Average Atlas, it can be utilized within pyKNEEr in the *reference* folder as a new reference.
 
 ## Training, testing, and validation of the UNet neural network
 For the training, validation, and testing of the 2D UNet neural network, the following percentages of their respective sets were used: training 66.66%, validation 25%, and testing 8.33%.
 <br>
-![Testo alternativo](images/dataset%20distribution.png)
+<img src="images/dataset%20distribution.png" width="850">
 
 ### Training
 
@@ -45,6 +45,9 @@ For the training, validation, and testing of the 2D UNet neural network, the fol
 ### 3D Volume Reconstruction & Post-processing
 
 ## Examples
+<img src="images/average_atlas.png" width="850">
+<img src="images/UNet.png" width="850"> 
+
 
 ## References
 [1]  
