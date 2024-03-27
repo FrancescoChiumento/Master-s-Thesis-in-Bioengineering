@@ -45,7 +45,13 @@ For the training, validation, and testing of the 2D UNet neural network, the fol
 ### 3D Volume Reconstruction & Post-processing
 
 ## Examples
+The segmentation obtained in this comparison were achieved using pyKNEEr, utilizing the Average Atlas as the segmentation reference for the patients. The patients MRIs and binary masks were previously preprocessed using pyKNEEr [*Link repository pyKNEEr*](https://github.com/sbonaretti/pyKNEEr).
+
+The segmentation achieved is reported, along with the ground truth segmented by an expert radiologist at the Rizzoli Orthopedic Institute in the Computational Bioengineering Laboratory (BIC), and the comparison using colorimetric maps of Hausdorff distances; the voxel spacing of the MRIs is 0.4121x0.4121x0.4000 mm. The average Hausdorff distance obtained is: __0.4225 mm__.
 <img src="images/average_atlas.png" width="850">
+
+In this second comparison, the segmentation achieved using the 2D UNet neural network, adapted for the specific case of Sag DP Cube MRI images utilized in the BIC laboratory, is reported. Similar to the previous approach, images and binary masks were preprocessed using pyKNEEr before neural network training, validation, and testing were conducted.
+In this instance as well, the voxel spacing of the MRIs is 0.4121x0.4121x0.4000 mm, while the average Hausdorff distance obtained is __0.2075 mm__.
 <img src="images/UNet.png" width="850"> 
 
 
